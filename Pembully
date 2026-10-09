@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Fadlly - Dark Fantasy Quest</title>
+    
+    <!-- Mengimpor font dengan nuansa RPG Dark Fantasy -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0a0a0c;
+            --panel-bg: rgba(20, 20, 26, 0.85);
+            --border-color: #3e3e4a;
+            --text-main: #dcdcdc;
+            --text-title: #e5b567; /* Gold */
+            --hp-color: #ff3333;
+            --gold-color: #ffd700;
+            --xp-color: #4da6ff;
+            --btn-bg: rgba(35, 35, 45, 0.9);
+            --btn-hover: rgba(55, 55, 70, 0.95);
+            --btn-border: #e5b567;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Lora', serif;
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at center, #1a1a24 0%, #050505 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(229, 181, 103, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Ornamen background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url('https://www.transparenttextures.com/patterns/stardust.png');
+            opacity: 0.3;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(229, 181, 103, 0.2);
+        }
+
+        .header h1 {
+            font-family: 'Cinzel', serif;
+            color: var(--text-title);
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(229, 181, 103, 0.3);
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-hp { color: var(--hp-color); }
+        .stat-gold { color: var(--gold-color); }
+        .stat-xp { color: var(--xp-color); }
+
+        .story-area {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            min-height: 180px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            border-left: 4px solid var(--text-title);
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .choices-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .choice-btn {
+            background: var(--btn-bg);
+            color: var(--text-main);
+            font-family: 'Lora', serif;
+            font-size: 1.1rem;
+            padding: 15px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .choice-btn:hover {
+            background: var(--btn-hover);
+            border-color: var(--btn-border);
+            color: #fff;
+            transform: translateX(5px);
+            box-shadow: 0 0 15px rgba(229, 181, 103, 0.2);
+        }
+
+        .choice-btn::before {
+            content: '>';
+            font-family: 'Cinzel', serif;
+            color: var(--text-title);
+            margin-right: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .choice-btn:hover::before {
+            opacity: 1;
+        }
+
+        /* Responsivitas untuk layar HP */
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.6rem; }
+            .stats-bar { flex-direction: row; font-size: 0.9rem; }
+            .story-area { font-size: 1.05rem; }
+            .choice-btn { font-size: 1rem; padding: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <div class="header">
+            <h1>Petualangan Fadlly</h1>
+            <div class="stats-bar">
+                <div class="stat stat-hp">
+                    <span>❤️ HP:</span> <span id="hp-val">100</span>
+                </div>
+                <div class="stat stat-gold">
+                    <span>💰 Gold:</span> <span id="gold-val">0</span>
+                </div>
+                <div class="stat stat-xp">
+                    <span>📈 XP:</span> <span id="xp-val">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="story-area" class="story-area fade-in">
+            <!-- Teks cerita akan dimuat di sini oleh JavaScript -->
+        </div>
+
+        <div id="choices-area" class="choices-area">
+            <!-- Tombol pilihan akan dimuat di sini oleh JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // 1. State Management
+        let player = {
+            hp: 100,
+            gold: 0,
+            xp: 0
+        };
+
+        // DOM Elements
+        const hpVal = document.getElementById('hp-val');
+        const goldVal = document.getElementById('gold-val');
+        const xpVal = document.getElementById('xp-val');
+        const storyArea = document.getElementById('story-area');
+        const choicesArea = document.getElementById('choices-area');
+
+        // 2. Data Cerita (Scenes)
+        const storyData = {
+            desa_awal: {
+                text: "Angin dingin berhembus menyapu Desa Eldoria. Di bawah langit yang tak pernah melihat matahari, seorang pahlawan muda bernama Fadlly berdiri memegang pedangnya. Penduduk desa memohon pada Fadlly untuk mengakhiri teror Raja Iblis Malakor di hutan terlarang.",
+                choices: [
+                    { text: "Berjalan menuju Hutan Kematian.", target: "hutan_kematian" },
+                    { text: "Kunjungi Kedai Tua untuk mencari informasi.", target: "kedai_tua" }
+                ]
+            },
+            kedai_tua: {
+                text: "Fadlly mendorong pintu kayu kedai yang berderit. Pemilik kedai terkejut melihat keberanian Fadlly. 'Bawalah ini, Fadlly. Kau akan membutuhkannya,' ucapnya sambil memberikan sekantung koin emas dan memberi tahu kelemahan monster hutan.",
+                action: () => { player.gold += 30; },
+                choices: [
+                    { text: "Terima kasih. Sekarang, menuju Hutan Kematian!", target: "hutan_kematian" }
+                ]
+            },
+            hutan_kematian: {
+                text: "Fadlly memasuki Hutan Kematian yang diselimuti kabut hitam. Suara gemerisik terdengar dari semak-semak. Tiba-tiba, sesosok 'Goblin Bayangan' melompat dan menyerang Fadlly!",
+                choices: [
+                    { text: "Cabut pedang dan hadapi Goblin itu secara langsung!", target: "lawan_goblin" },
+                    { text: "Coba menghindar dan berlari ke dalam gua terdekat.", target: "lari_gua" }
+                ]
+            },
+            lawan_goblin: {
+                text: "Dengan gerakan gesit, Fadlly menebas Goblin Bayangan tersebut. Pertarungan yang sengit! Fadlly terluka sedikit, namun berhasil menang dan menemukan koin di tubuh monster itu.",
+                action: () => { player.hp -= 15; player.xp += 25; player.gold += 15; },
+                choices: [
+                    { text: "Lanjutkan perjalanan memasuki Gua Kristal.", target: "gua_kristal" }
+                ]
+            },
+            lari_gua: {
+                text: "Fadlly memilih untuk menghindari pertarungan sia-sia. Namun saat berlari, Fadlly tersandung akar berduri berbisa yang menguras staminanya sebelum berhasil mencapai Gua Kristal.",
+                action: () => { player.hp -= 25; },
+                choices: [
+                    { text: "Masuk ke dalam Gua Kristal untuk berlindung.", target: "gua_kristal" }
+                ]
+            },
+            gua_kristal: {
+                text: "Di dalam Gua Kristal, cahaya biru redup menerangi jalan Fadlly. Di sudut gua, Fadlly melihat sebuah peti harta karun kuno yang memancarkan aura suci.",
+                choices: [
+                    { text: "Buka peti harta karun kuno tersebut.", target: "harta_karun" },
+                    { text: "Abaikan peti itu, langsung menuju Ruang Singgasana Bos.", target: "bos_terakhir" }
+                ]
+            },
+            harta_karun: {
+                text: "Peti itu terbuka! Di dalamnya terdapat 'Ramuan Air Suci' peninggalan dewa. Fadlly meminumnya, seluruh luka sembuh, dan ia mendapatkan koin emas tambahan!",
+                action: () => { player.hp = 100; player.gold += 50; player.xp += 10; },
+                choices: [
+                    { text: "Dengan kekuatan penuh, hadapi Raja Iblis Malakor!", target: "bos_terakhir" }
+                ]
+            },
+            bos_terakhir: {
+                text: "Fadlly mendobrak pintu besi raksasa. Di atas singgasana tengkorak, Raja Iblis Malakor menatap tajam. 'Fadlly... Beraninya kau menantang maut!' teriaknya sambil mengangkat tongkat sihir yang menyala merah. Pertarungan penentuan dimulai!",
+                choices: [
+                    { text: "Gunakan 'Jurus Tebasan Bulan Sabit' terkuat milik Fadlly!", target: "cek_kemenangan" },
+                    { text: "Bertahan di balik perisai, menunggu celah serangan.", target: "kalah_bertahan" }
+                ]
+            },
+            cek_kemenangan: {
+                // Logika dinamis: jika pemain tidak lari dari goblin (XP >= 25), Fadlly menang.
+                action: () => {
+                    if (player.xp >= 25 || player.hp === 100) {
+                        loadScene("victory");
+                    } else {
+                        loadScene("game_over");
+                    }
+                }
+            },
+            kalah_bertahan: {
+                text: "Pertahanan Fadlly hancur oleh sihir gelap Malakor yang luar biasa. Sayang sekali, perjalanan Fadlly harus berakhir di sini.",
+                action: () => { player.hp = 0; },
+                choices: [
+                    { text: "Coba Lagi dari Awal", target: "start_over" }
+                ]
+            },
+            victory: {
+                text: "🏆 VICTORY! 🏆<br><br>Tebasan pedang Fadlly membelah sihir gelap Malakor. Sang Raja Iblis hancur menjadi debu hitam. Cahaya matahari akhirnya kembali menyinari negeri. Seluruh kerajaan mengelu-elukan nama Fadlly sebagai Pahlawan Legendaris!",
+                choices: [
+                    { text: "Mainkan Lagi (Rebirth)", target: "start_over" }
+                ]
+            },
+            game_over: {
+                text: "☠️ GAME OVER ☠️<br><br>Fadlly bertarung dengan gagah berani, namun kekuatan Raja Iblis terlalu besar. Fadlly tumbang, dan kegelapan menelan negeri Eldoria seutuhnya...",
+                action: () => { player.hp = 0; },
+                choices: [
+                    { text: "Bangkit dan Coba Lagi", target: "start_over" }
+                ]
+            }
+        };
+
+        // 3. Fungsi Utama Game
+        function updateStats() {
+            // Memastikan HP tidak minus
+            if (player.hp < 0) player.hp = 0;
+            
+            hpVal.innerText = player.hp;
+            goldVal.innerText = player.gold;
+            xpVal.innerText = player.xp;
+
+            // Merubah warna HP jika kritis
+            if (player.hp <= 30) {
+                hpVal.parentElement.style.color = "#ff0000";
+                hpVal.parentElement.style.animation = "pulse 1s infinite";
+            } else {
+                hpVal.parentElement.style.color = "var(--hp-color)";
+                hpVal.parentElement.style.animation = "none";
+            }
+        }
+
+        // Animasi detak jantung untuk HP kritis
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `
+            @keyframes pulse {
+                0% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.1); opacity: 0.7; }
+                100% { transform: scale(1); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+        function loadScene(sceneKey) {
+            // Reset game jika target adalah 'start_over'
+            if (sceneKey === "start_over") {
+                player = { hp: 100, gold: 0, xp: 0 };
+                sceneKey = "desa_awal";
+            }
+
+            const scene = storyData[sceneKey];
+            if (!scene) return;
+
+            // Eksekusi aksi jika ada (mengurangi HP, tambah Gold, dll)
+            if (scene.action) {
+                scene.action();
+                // Jika setelah aksi ini game over (dan bukan di scene game_over itu sendiri)
+                if (player.hp <= 0 && sceneKey !== "game_over") {
+                    loadScene("game_over");
+                    return;
+                }
+            }
+
+            // Update UI Status
+            updateStats();
+
+            // Efek transisi cerita
+            storyArea.classList.remove("fade-in");
+            // Memicu reflow DOM untuk mengulang animasi
+            void storyArea.offsetWidth; 
+            
+            // Set teks cerita (mendukung tag <br> untuk formatting)
+            storyArea.innerHTML = scene.text || "";
+            storyArea.classList.add("fade-in");
+
+            // Kosongkan tombol lama
+            choicesArea.innerHTML = "";
+
+            // Render tombol pilihan baru
+            if (scene.choices) {
+                scene.choices.forEach(choice => {
+                    const btn = document.createElement("button");
+                    btn.className = "choice-btn";
+                    btn.innerText = choice.text;
+                    btn.onclick = () => loadScene(choice.target);
+                    choicesArea.appendChild(btn);
+                });
+            }
+        }
+
+        // Memulai game pertama kali
+        window.onload = () => {
+            loadScene("desa_awal");
+        };
+    </script>
+</body>
+</html>
